@@ -6,4 +6,4 @@ description      'Installs/Configures appv'
 depends          'powershell', '>= 1.1.0' # We use Chef::Mixin::PowershellOut which debuted in powershell cookbook v1.1.0
 depends          'windows'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.1.0'
+version          '1.0.0'
