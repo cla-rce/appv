@@ -1,4 +1,7 @@
+use_inline_resources
+
 include Chef::Mixin::PowershellOut
+include Chef::Windows::Helper
 
 def whyrun_supported?
 	true
@@ -40,7 +43,7 @@ def add_appv_package
 	powershell_script "Adding App-V Package #{new_resource.package_name}" do
 		code <<-EOH
 		Import-Module AppvClient
-		Add-AppVClientPackage -Path "#{new_resource.source}" | Publish-AppVClientPackage -Global
+		Add-AppVClientPackage -Path "#{win_friendly_path(new_resource.source)}" | Publish-AppVClientPackage -Global
 		EOH
 	end
 end
@@ -49,15 +52,14 @@ def remove_appv_package
 	powershell_script "Removing App-V Package #{new_resource.package_name}" do
 		code <<-EOH
 		Import-Module AppvClient
-		Stop-AppVClientPackage -Name #{new_resource.package_name} | Remove-AppVClientPackage
+		Stop-AppVClientPackage -Name '#{new_resource.package_name}' | Remove-AppVClientPackage
 		EOH
 	end
 end
 
 def appv_package_exists?(name, version)
-	powershell_string = "$pkg = Get-AppVClientPackage #{name}; $pkg.IsPublishedGlobally"
+	powershell_string = "$pkg = Get-AppVClientPackage '#{name}'; $pkg.IsPublishedGlobally"
 	powershell_string += " -and ($pkg.Version -eq '#{version}')" if version
 	cmd = powershell_out(powershell_string)
-	cmd.run_command
 	cmd.stdout =~ /True/
 end
